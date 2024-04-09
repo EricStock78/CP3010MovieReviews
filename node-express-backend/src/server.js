@@ -6,8 +6,10 @@ import { fileURLToPath } from 'url';
 import multer from 'multer';
 import * as dotenv from 'dotenv' // see https://github.com/motdotla/dotenv#how-do-i-use-dotenv-with-import
 import bodyParser from 'body-parser'
+import mongoose from 'mongoose';
+import customerModel from './customerModel.js';
+import './mongoose.js';
 dotenv.config()
-
 const jsonParser = bodyParser.json()
 
 const __filename = fileURLToPath(import.meta.url);
@@ -105,6 +107,28 @@ app.post('/api/review', upload.single('movie_poster'),  async (req,res) => {
     res.redirect('/');*/
 })
 
+app.post('/api/addInfo', jsonParser, async (req, res) => {
+  const { name, email, movie } = req.body;
+  console.log("name: " + name)
+  console.log("email: " + email)
+  console.log("movie: " + movie)
+  
+
+  if(!name || !email || !movie){
+    console.log(name)
+    console.log(email)
+    console.log(movie)
+    return res.status(206).json({error: "Error with field(s)"});
+  }
+  const customer = new customerModel({
+    name: name,
+    email: email,
+    movie: movie
+  });
+  await customer.save();
+  return res.status(200).send(customer);
+  })
+
 
 const saveData = () => {
   const jsonContent = JSON.stringify(movieData);
@@ -115,6 +139,7 @@ const saveData = () => {
     console.log("JSON file has been saved.");
   });
 }
+
 
 
 
